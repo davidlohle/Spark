@@ -19,7 +19,10 @@ def initialize():
         teamspeak_status = status_db["teamspeak"]
     except:
         status_db["teamspeak"] = True
-
+    try:
+        synclounge_status = status_db["synclounge"]
+    except:
+        status_db["synclounge"] = True
 
 def commit():
     global status_db

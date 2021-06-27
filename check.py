@@ -5,23 +5,18 @@ import config
 def plexStatus():
     health_url = config.Plex.URL + "/media/providers"
     headers = {
-    "Accept": "application/json",
-    "Content-Type": "application/json",
-    "X-Plex-Token": config.Plex.Token
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "X-Plex-Token": config.Plex.Token
     }
-    response = ""
     try:
         response = requests.request("GET", health_url, headers=headers, verify=False, timeout=10)
+        if response.status_code != 200:
+            return False
+        return True
     except:
         print("Timeout while reaching Plex.")
         return False
-
-    if response.status_code != 200:
-        return False
-    
-    return True
-
-
 
 def teamspeakStatus():
     teamspeak_host = config.Teamspeak.Host
@@ -37,3 +32,17 @@ def teamspeakStatus():
     except:
         return False
 
+def syncLoungeStatus():
+    synclounge_url: config.SyncLounge.URL
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+    }
+    try:
+        response = requests.request("GET", synclounge_url, headers=headers, verify=False, timeout=10)
+        if response.status_code != 200:
+            return False
+        return True
+    except:
+        print("Timeout while reaching SyncLounge.")
+        return False

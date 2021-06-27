@@ -5,6 +5,7 @@ import config
 class Components:
     Plex = 7
     Teamspeak = 4
+    SyncLounge = 9
 
 class ComponentStatus:
     Operational = 1

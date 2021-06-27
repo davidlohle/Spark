@@ -12,6 +12,9 @@ class GroupMe:
     VGF = "groupmebotchannel"
     Plex = "groupmebotchanel"
 
+class SyncLounge:
+    Host = "https://mysyncserver.com/health"
+
 class DB:
     FilePath = os.path.dirname(os.path.abspath(__file__)) + "/statusDB.json"
 

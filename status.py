@@ -1,87 +1,57 @@
-import requests, urllib3, datetime, socket
+import requests, urllib3, datetime
 
 import db, cachet, check, config
 
 def main():
     global status_db
+    print(datetime.datetime.now().strftime("%D at %T"))
+    checkService(check.plexStatus, "Plex", cachet.Components.Plex, config.GroupMe.Plex)
+    checkService(check.teamspeakStatus, "TeamSpeak", cachet.Components.Teamspeak, config.GroupMe.VGF)
+    checkService(check.syncLoungeStatus, "SyncLounge", cachet.Components.SyncLounge, config.GroupMe.Plex)
 
-    # PLEX HEALTH CHECKING
-    if not check.plexStatus():
-        if status_db["plex"]:
-            # Plex is down for the first iteration, let's create the notices.
-            print("Error with contacting Plex, creating Cachet ticket and notifying group.")
-            status_db["plex"] = False
-            status_db["plex_incident_message"] = "On %s EST, there was a missed heartbeat from Outer Heaven. Plex is most likely down at the moment." % datetime.datetime.now().strftime("%D at %T")
-            plex_down_payload = {
+
+
+def checkService(service_response, service_name, service_cachet_component, groupme_channel):
+    service = service_name.lower()
+    service_incident_message = service + "_incident_message"
+    service_incident_code = service + "_incident_code"
+    if not service_response:
+        if status_db[service]:
+            # Component is down for the first iteration, let's create the notices.
+            print("Error with contacting " + service_name + ", creating Cachet ticket and notifying group.")
+            status_db[service] = False
+            status_db[service_incident_message] = "On %s EST, there was a missed heartbeat from %s. %s is most likely down at the moment." % (datetime.datetime.now().strftime("%D at %T"), service_name, service_name)
+            service_down_payload = {
                 "visible": 1,
                 "notify": False,
                 "status": cachet.IncidentStatus.Investigating,
-                "name": "Plex Unavailability", 
-                "message": status_db["plex_incident_message"], 
-                "component_id": cachet.Components.Plex, 
+                "name": "%s Unavailability", 
+                "message": status_db[service_incident_message], 
+                "component_id": service_cachet_component, 
                 "component_status": cachet.ComponentStatus.MajorOutage
-            } 
-            incident_code = cachet.createIncident(plex_down_payload)
-            status_db["plex_incident"] = incident_code
+            } % service_name
+
+            incident_code = cachet.createIncident(service_down_payload)
+            status_db[service_incident_code] = incident_code
             
-            error_string = "The Plex server is down. You can track the status of this issue at: " + config.Cachet.URL + "/incidents/" + str(incident_code)
-            notifyGroupMe(error_string, config.GroupMe.Plex)
+            error_string = "The " + service_name + " server is down. You can track the status of this issue at: " + config.Cachet.URL + "/incidents/" + str(incident_code)
+            notifyGroupMe(error_string, groupme_channel)
         else:
-            # Plex has already been seen as down.
-            print("Plex continues to be down, a ticket is already open and people have been notified. Continuing in silence.")
+            # Service has already been seen as down.
+            print(service_name + " continues to be down, a ticket is already open and people have been notified. Continuing in silence.")
     else:
-        if not status_db["plex"]:
-            # Plex was down, but now it's back up. Close out the notices and notify people it's back.
-            print("Plex has returned, closing out incident and notifying group.")
-            status_db["plex"] = True
-            return_string = status_db["plex_incident_message"] + "\n\nHowever, as of %s, it appears Plex is running nominally." % datetime.datetime.now().strftime("%D at %T")
-            cachet.closeIncident(cachet.Components.Plex, status_db["plex_incident"], return_string)
-            return_string = "The Plex server is back up. The incident has been closed out."
-            notifyGroupMe(return_string, config.GroupMe.Plex)
+        if not status_db[service]:
+            # Service was down, but now it's back up. Close out the notices and notify people it's back.
+            print(service_name + " has returned, closing out incident and notifying group.")
+            status_db[service] = True
+            return_string = status_db[service_incident_message] + "\n\nHowever, as of %s, it appears %s is running nominally." % (datetime.datetime.now().strftime("%D at %T"), service_name)
+            cachet.closeIncident(service_cachet_component, status_db[service_incident_code], return_string)
+            return_string = "The " + service_name + " server is back up. The incident has been closed out."
+            notifyGroupMe(return_string, groupme_channel)
         else:
-            # Plex was up, and continues to be up.
-            print("Plex continues to be fine.")
-            status_db["plex"] = True
-
-    # TEAMSPEAK HEALTH CHECKING
-    if not check.teamspeakStatus():
-        if status_db["teamspeak"]:
-            # Teamspeak is down for the first iteration, let's create notices
-            print("Error with contacting Teamspeak, creating Cachet ticket and notifying group.")
-            status_db["teamspeak"] = False
-            status_db["teamspeak_incident_message"] = "On %s EST, the Teamspeak server did not respond to a health query. Teamspeak is most likely down at the moment." % datetime.datetime.now().strftime("%D at %T")
-            teamspeak_down_payload = {
-                "visible": 1,
-                "notify": False,
-                "status": cachet.IncidentStatus.Investigating,
-                "name": "Teamspeak Unavailability", 
-                "message": status_db["teamspeak_incident_message"], 
-                "component_id": cachet.Components.Teamspeak, 
-                "component_status": cachet.ComponentStatus.MajorOutage
-            }
-            incident_code = cachet.createIncident(teamspeak_down_payload)
-            status_db["teamspeak_incident"] = incident_code
-
-            error_string = "The Teamspeak server is down. You can track the status of this issue at: " + config.Cachet.URL + "/incidents/" + str(incident_code)
-            notifyGroupMe(error_string, config.GroupMe.VGF)
-        else:
-            # Teamspeak has already been seen as down.
-            print("Teamspeak continues to be down, a ticket is already open and people have been notified. Continuing in silence.")
-    else:
-        if not status_db["teamspeak"]:
-            # Teamspeak was down, but now it's back up. Close out the notices and notify people it's back.
-            print("Teamspeak has returned, closing out incident and notifying group.")
-            status_db["teamspeak"] = True
-            return_string = status_db["teamspeak_incident_message"] + "\n\n However, as of %s, it appears Teamspeak has returned." % datetime.datetime.now().strftime("%D at %T")
-            cachet.closeIncident(cachet.Components.Teamspeak, status_db["teamspeak_incident"], return_string)
-            return_string = "The Teamspeak server is back up. The incident has been closed out."
-            notifyGroupMe(return_string, config.GroupMe.VGF)
-        else:
-            # Teamspeak was up, and contiues to be up.
-            print("Teamspeak continues to be fine.")
-            status_db["teamspeak"] = True
-
-
+            # Service was up, and continues to be up.
+            print(service_name + " continues to be fine.")
+            status_db[service] = True
 
 def notifyGroupMe(message, botID):
     payload = {

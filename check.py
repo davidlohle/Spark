@@ -12,6 +12,7 @@ def plexStatus():
     try:
         response = requests.request("GET", health_url, headers=headers, verify=False, timeout=10)
         if response.status_code != 200:
+            print("Non 200 HTTP response from Plex. It was: %d", response.status_code)
             return False
         return True
     except:
@@ -26,10 +27,12 @@ def teamspeakStatus():
         result = s.connect_ex((teamspeak_host, teamspeak_port))
         if result != 0:
             s.close()
+            print("Non 0 ex_connect to Teamspeak RCON.")
             return False
         s.close()
         return True
     except:
+        print("Unknown issue connecting to TeamSpeak RCON")
         return False
 
 def syncLoungeStatus():
@@ -41,6 +44,7 @@ def syncLoungeStatus():
     try:
         response = requests.request("GET", synclounge_url, headers=headers, verify=False, timeout=10)
         if response.status_code != 200:
+            print("Non 200 HTTP response from SyncLounge. It was: %d", response.status_code)
             return False
         return True
     except:

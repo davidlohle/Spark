@@ -5,9 +5,9 @@ import db, cachet, check, config
 def main():
     global status_db
     print(datetime.datetime.now().strftime("%D at %T"))
-    checkService(check.plexStatus, "Plex", cachet.Components.Plex, config.GroupMe.Plex)
-    checkService(check.teamspeakStatus, "TeamSpeak", cachet.Components.Teamspeak, config.GroupMe.VGF)
-    checkService(check.syncLoungeStatus, "SyncLounge", cachet.Components.SyncLounge, config.GroupMe.Plex)
+    checkService(check.plexStatus(), "Plex", cachet.Components.Plex, config.GroupMe.Plex)
+    checkService(check.teamspeakStatus(), "TeamSpeak", cachet.Components.Teamspeak, config.GroupMe.VGF)
+    checkService(check.syncLoungeStatus(), "SyncLounge", cachet.Components.SyncLounge, config.GroupMe.Plex)
 
 
 
@@ -63,12 +63,6 @@ def notifyGroupMe(message, botID):
     "Content-Type": "application/json",   
     }
     response = requests.request("POST", "https://api.groupme.com/v3/bots/post", headers=headers, json=payload)
-
-
-
-
-
-
 
 
 if __name__ == "__main__":

@@ -13,7 +13,7 @@ class GroupMe:
     Plex = "groupmebotchanel"
 
 class SyncLounge:
-    Host = "https://mysyncserver.com/health"
+    URL = "https://mysyncserver.com/health"
 
 class DB:
     FilePath = os.path.dirname(os.path.abspath(__file__)) + "/statusDB.json"

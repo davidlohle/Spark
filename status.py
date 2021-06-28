@@ -12,6 +12,7 @@ def main():
 
 
 def checkService(service_response, service_name, service_cachet_component, groupme_channel):
+    global status_db
     service = service_name.lower()
     service_incident_message = service + "_incident_message"
     service_incident_code = service + "_incident_code"
@@ -25,11 +26,11 @@ def checkService(service_response, service_name, service_cachet_component, group
                 "visible": 1,
                 "notify": False,
                 "status": cachet.IncidentStatus.Investigating,
-                "name": "%s Unavailability", 
+                "name": "%s Unavailability" % service_name, 
                 "message": status_db[service_incident_message], 
                 "component_id": service_cachet_component, 
                 "component_status": cachet.ComponentStatus.MajorOutage
-            } % service_name
+            } 
 
             incident_code = cachet.createIncident(service_down_payload)
             status_db[service_incident_code] = incident_code
@@ -62,7 +63,7 @@ def notifyGroupMe(message, botID):
     "Accept": "application/json",
     "Content-Type": "application/json",   
     }
-    response = requests.request("POST", "https://api.groupme.com/v3/bots/post", headers=headers, json=payload)
+    requests.request("POST", "https://api.groupme.com/v3/bots/post", headers=headers, json=payload)
 
 
 if __name__ == "__main__":

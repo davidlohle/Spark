@@ -15,8 +15,9 @@ def plexStatus():
             print("Non 200 HTTP response from Plex. It was: %d", response.status_code)
             return False
         return True
-    except:
-        print("Timeout while reaching Plex.")
+    except Exception as err:
+        print("Issue while reaching Plex. Err:")
+        print(err)
         return False
 
 def teamspeakStatus():
@@ -31,8 +32,9 @@ def teamspeakStatus():
             return False
         s.close()
         return True
-    except:
-        print("Unknown issue connecting to TeamSpeak RCON")
+    except Exception as err:
+        print("Unknown issue connecting to TeamSpeak RCON. Err:")
+        print(err)
         return False
 
 def syncLoungeStatus():
@@ -47,6 +49,7 @@ def syncLoungeStatus():
             print("Non 200 HTTP response from SyncLounge. It was: %d", response.status_code)
             return False
         return True
-    except:
-        print("Timeout while reaching SyncLounge.")
+    except Exception as err:
+        print("Issue while reaching SyncLounge. Err:")
+        print(err)
         return False

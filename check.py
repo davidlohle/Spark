@@ -38,7 +38,7 @@ def teamspeakStatus():
         return False
 
 def syncLoungeStatus():
-    synclounge_url: config.SyncLounge.URL
+    synclounge_url = config.SyncLounge.URL
     headers = {
         "Accept": "application/json",
         "Content-Type": "application/json",

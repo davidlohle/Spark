@@ -11,9 +11,17 @@ class Plex:
 class GroupMe:
     VGF = "groupmebotchannel"
     Plex = "groupmebotchanel"
+    SeventhProtocol = "idontactuallylikegroupmeallthatmuch"
 
 class SyncLounge:
     URL = "https://mysyncserver.com/health"
+
+class Requests:
+    URL = "https://myrequestserver.com/v1/api/status"
+
+class FileUpload:
+    RemoteFile = "https://myserver.com/my-favorite-image.png"
+    Upload_API = "https://mypomfserver.com/upload.php"
 
 class DB:
     FilePath = os.path.dirname(os.path.abspath(__file__)) + "/statusDB.json"

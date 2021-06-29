@@ -8,6 +8,8 @@ def main():
     checkService(check.plexStatus(), "Plex", cachet.Components.Plex, config.GroupMe.Plex)
     checkService(check.teamspeakStatus(), "TeamSpeak", cachet.Components.Teamspeak, config.GroupMe.VGF)
     checkService(check.syncLoungeStatus(), "SyncLounge", cachet.Components.SyncLounge, config.GroupMe.Plex)
+    checkService(check.requestStatus(), "Requests", cachet.Components.Requests, config.GroupMe.Plex)
+    checkService(check.fileUploadStatus(), "IPv7", cachet.Components.FileUpload, config.GroupMe.SeventhProtocol)
 
 
 

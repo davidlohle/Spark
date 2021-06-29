@@ -53,3 +53,60 @@ def syncLoungeStatus():
         print("Issue while reaching SyncLounge. Err:")
         print(err)
         return False
+
+def requestStatus():
+    requests_url = config.Requests.URL
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+    }
+    try:
+        response = requests.request("GET", requests_url, headers=headers, verify=False, timeout=10)
+        if response.status_code != 200:
+            print("Non 200 HTTP response from Request system. It was: %d", response.status_code)
+            return False
+        return True
+    except Exception as err:
+        print("Issue while reaching Requests. Err:")
+        print(err)
+        return False
+
+
+def fileUploadStatus():
+    file_upload_api = config.FileUpload.Upload_API
+    test_image_url = config.FileUpload.RemoteFile
+    file_content = ""
+
+    # Let's download an image and then try re-uploading it. This should test the full lifecycle.
+    try:
+        response = requests.get(test_image_url, timeout=10)
+        if response.status_code != 200:
+            print("Non 200 HTTP response from Pomf on file get. It was: %d", response.status_code)
+            return False
+        file_content = response.content
+    except Exception as err:
+        print("Issue while trying to download pomf file. Err:")
+        print(err)
+        return False
+    
+    # Viewing an image worked (cool), now let's try uploading it back.
+    # I should expect the API to return the same URL as `test_image_url` since it runs de-dupe.
+
+    try:
+        response = requests.post(file_upload_api, files={'files[]': file_content}, timeout=10)
+        if response.status_code != 200:
+            print("Non 200 HTTP response from Pomf API while trying to uplaod file system. It was: %d", response.status_code)
+            return False
+
+        response_json = json.loads(response.text)
+        resulting_file_url = response_json["files"][0]["url"]
+
+        if resulting_file_url != test_image_url:
+            print("Didn't get back same URL from Pomf API while trying to upload an existing file. We got: %s instead.", resulting_file_url)
+            return False
+        
+        return True
+    except Exception as err:
+        print("Issue while reaching Requests. Err:")
+        print(err)
+        return False

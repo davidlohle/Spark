@@ -6,6 +6,8 @@ class Components:
     Plex = 7
     Teamspeak = 4
     SyncLounge = 9
+    Requests = 13
+    FileUpload = 5
 
 class ComponentStatus:
     Operational = 1

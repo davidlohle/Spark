@@ -11,18 +11,13 @@ def initialize():
     except:
         status_db = {}
         print("Error loading status DB, starting with empty file.")
-    try:
-        plex_status = status_db["plex"]
-    except:
-        status_db["plex"] = True
-    try:
-        teamspeak_status = status_db["teamspeak"]
-    except:
-        status_db["teamspeak"] = True
-    try:
-        synclounge_status = status_db["synclounge"]
-    except:
-        status_db["synclounge"] = True
+
+    # Create keys if they don't exist (poor-mans schema migration)
+    services = ["plex", "teamspeak", "synclounge", "requests", "ipv7"]
+    for service in services:
+        if service not in status_db:
+            status_db[service] = True
+
 
 def commit():
     global status_db

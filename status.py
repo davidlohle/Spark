@@ -37,7 +37,7 @@ def checkService(service_response, service_name, service_cachet_component, group
             incident_code = cachet.createIncident(service_down_payload)
             status_db[service_incident_code] = incident_code
             
-            error_string = "The " + service_name + " server is down. You can track the status of this issue at: " + config.Cachet.URL + "/incidents/" + str(incident_code)
+            error_string = "The " + service_name + " server is down. Status: " + config.Cachet.URL + "/incidents/" + str(incident_code)
             notifyGroupMe(error_string, groupme_channel)
         else:
             # Service has already been seen as down.
@@ -49,7 +49,7 @@ def checkService(service_response, service_name, service_cachet_component, group
             status_db[service] = True
             return_string = status_db[service_incident_message] + "\n\nHowever, as of %s, it appears %s is running nominally." % (datetime.datetime.now().strftime("%D at %T"), service_name)
             cachet.closeIncident(service_cachet_component, status_db[service_incident_code], return_string)
-            return_string = "The " + service_name + " server is back up. The incident has been closed out."
+            return_string = "The " + service_name + " server is back up."
             notifyGroupMe(return_string, groupme_channel)
         else:
             # Service was up, and continues to be up.

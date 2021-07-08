@@ -5,24 +5,26 @@ import db, cachet, check, config
 def main():
     global status_db
     print(datetime.datetime.now().strftime("%D at %T"))
-    checkService(check.plexStatus(), "Plex", cachet.Components.Plex, config.GroupMe.Plex)
-    checkService(check.teamspeakStatus(), "TeamSpeak", cachet.Components.Teamspeak, config.GroupMe.VGF)
-    checkService(check.syncLoungeStatus(), "SyncLounge", cachet.Components.SyncLounge, config.GroupMe.Plex)
-    checkService(check.requestStatus(), "Requests", cachet.Components.Requests, config.GroupMe.Plex)
-    checkService(check.fileUploadStatus(), "IPv7", cachet.Components.FileUpload, config.GroupMe.SeventhProtocol)
+    checkService(check.plexStatus(), 2, "Plex", cachet.Components.Plex, config.GroupMe.Plex)
+    checkService(check.teamspeakStatus(), 2, "TeamSpeak", cachet.Components.Teamspeak, config.GroupMe.VGF)
+    checkService(check.syncLoungeStatus(), 5, "SyncLounge", cachet.Components.SyncLounge, config.GroupMe.Plex)
+    checkService(check.requestStatus(), 10, "Requests", cachet.Components.Requests, config.GroupMe.Plex)
+    checkService(check.fileUploadStatus(), 3, "IPv7", cachet.Components.FileUpload, config.GroupMe.SeventhProtocol)
 
 
 
-def checkService(service_response, service_name, service_cachet_component, groupme_channel):
+def checkService(service_response, error_threshold, service_name, service_cachet_component, groupme_channel):
     global status_db
     service = service_name.lower()
     service_incident_message = service + "_incident_message"
     service_incident_code = service + "_incident_code"
     if not service_response:
-        if status_db[service]:
-            # Component is down for the first iteration, let's create the notices.
-            print("Error with contacting " + service_name + ", creating Cachet ticket and notifying group.")
-            status_db[service] = False
+        # Component is down, increment error count
+        status_db[service] += 1
+        print("Error with contacting " + service_name + ", incrementing error counter.")
+        if status_db[service] == error_threshold:
+            # Component is down past threshold, create tickets and alert.
+            print(service_name + " has hit error threshold, opening a ticket and notifying groups.")
             status_db[service_incident_message] = "On %s EST, there was a missed heartbeat from %s. %s is most likely down at the moment." % (datetime.datetime.now().strftime("%D at %T"), service_name, service_name)
             service_down_payload = {
                 "visible": 1,
@@ -39,14 +41,17 @@ def checkService(service_response, service_name, service_cachet_component, group
             
             error_string = "The " + service_name + " server is down. Status: " + config.Cachet.URL + "/incidents/" + str(incident_code)
             notifyGroupMe(error_string, groupme_channel)
+        elif status_db[service] > error_threshold:
+            # Service has already violated error threshold and tickets opened.
+            print(service_name + " has already violated error threshold and alerted. Continuing in silence.")
         else:
-            # Service has already been seen as down.
-            print(service_name + " continues to be down, a ticket is already open and people have been notified. Continuing in silence.")
+            # Service has not yet violated error threshold.
+            print(service_name + " has not yet violated error threshold. Not yet alerting.")
     else:
-        if not status_db[service]:
+        if status_db[service] > 0 :
             # Service was down, but now it's back up. Close out the notices and notify people it's back.
             print(service_name + " has returned, closing out incident and notifying group.")
-            status_db[service] = True
+            status_db[service] = 0
             return_string = status_db[service_incident_message] + "\n\nHowever, as of %s, it appears %s is running nominally." % (datetime.datetime.now().strftime("%D at %T"), service_name)
             cachet.closeIncident(service_cachet_component, status_db[service_incident_code], return_string)
             return_string = "The " + service_name + " server is back up."
@@ -54,7 +59,7 @@ def checkService(service_response, service_name, service_cachet_component, group
         else:
             # Service was up, and continues to be up.
             print(service_name + " continues to be fine.")
-            status_db[service] = True
+            status_db[service] = 0
 
 def notifyGroupMe(message, botID):
     payload = {

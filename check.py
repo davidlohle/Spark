@@ -12,7 +12,7 @@ def plexStatus():
     try:
         response = requests.request("GET", health_url, headers=headers, verify=False, timeout=10)
         if response.status_code != 200:
-            print("Non 200 HTTP response from Plex. It was: %d", response.status_code)
+            print("Non 200 HTTP response from Plex. It was: " + str(response.status_code))
             return False
         return True
     except Exception as err:
@@ -46,7 +46,7 @@ def syncLoungeStatus():
     try:
         response = requests.request("GET", synclounge_url, headers=headers, verify=False, timeout=10)
         if response.status_code != 200:
-            print("Non 200 HTTP response from SyncLounge. It was: %d", response.status_code)
+            print("Non 200 HTTP response from SyncLounge. It was: " + str(response.status_code))
             return False
         return True
     except Exception as err:
@@ -63,7 +63,7 @@ def requestStatus():
     try:
         response = requests.request("GET", requests_url, headers=headers, verify=False, timeout=10)
         if response.status_code != 200:
-            print("Non 200 HTTP response from Request system. It was: %d", response.status_code)
+            print("Non 200 HTTP response from Request system. It was: " + str(response.status_code))
             return False
         return True
     except Exception as err:
@@ -81,7 +81,7 @@ def fileUploadStatus():
     try:
         response = requests.get(test_image_url, timeout=10)
         if response.status_code != 200:
-            print("Non 200 HTTP response from Pomf on file get. It was: %d", response.status_code)
+            print("Non 200 HTTP response from Pomf on file get. It was: " + str(response.status_code))
             return False
         file_content = response.content
     except Exception as err:
@@ -95,14 +95,14 @@ def fileUploadStatus():
     try:
         response = requests.post(file_upload_api, files={'files[]': file_content}, timeout=10)
         if response.status_code != 200:
-            print("Non 200 HTTP response from Pomf API while trying to uplaod file system. It was: %d", response.status_code)
+            print("Non 200 HTTP response from Pomf API while trying to uplaod file system. It was: " + str(response.status_code))
             return False
 
         response_json = json.loads(response.text)
         resulting_file_url = response_json["files"][0]["url"]
 
         if resulting_file_url != test_image_url:
-            print("Didn't get back same URL from Pomf API while trying to upload an existing file. We got: %s instead.", resulting_file_url)
+            print("Didn't get back same URL from Pomf API while trying to upload an existing file. We got: " + resulting_file_url + " instead.")
             return False
         
         return True

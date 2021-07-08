@@ -16,7 +16,7 @@ def initialize():
     services = ["plex", "teamspeak", "synclounge", "requests", "ipv7"]
     for service in services:
         if service not in status_db:
-            status_db[service] = True
+            status_db[service] = 0
 
 
 def commit():

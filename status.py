@@ -19,7 +19,7 @@ def summarizeStatus():
     summary = []
     for service in config.Spark.Services:
         if status_db[service] != 0:
-            summary.append(service + ": DOWN (" + status_db[service] + ")")
+            summary.append(service + ": DOWN (" + str(status_db[service]) + ")")
         else:
             summary.append(service + ": OK")
     print(" | ".join(summary))
@@ -93,6 +93,9 @@ if __name__ == "__main__":
     urllib3.disable_warnings()
     db.initialize()
     status_db = db.status_db
-    main()
+    try:
+        main()
+    except Exception as err:
+        print("Error while running Spark: " + str(err))
     db.status_db = status_db
     db.commit()

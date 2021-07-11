@@ -1,5 +1,8 @@
 import os
 
+class Spark:
+    Services = ["plex", "teamspeak", "synclounge", "requests", "ipv7", "minecraft"]
+
 class Cachet:
     URL = "https://mycachetserver.com"
     Token = "mytoken"

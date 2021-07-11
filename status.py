@@ -11,8 +11,18 @@ def main():
     checkService(check.syncLoungeStatus(), 5, "SyncLounge", cachet.Components.SyncLounge, config.GroupMe.SeventhProtocol)
     checkService(check.requestStatus(), 10, "Requests", cachet.Components.Requests, config.GroupMe.SeventhProtocol)
     checkService(check.fileUploadStatus(), 3, "IPv7", cachet.Components.FileUpload, config.GroupMe.SeventhProtocol)
+    summarizeStatus()
 
 
+def summarizeStatus():
+    global status_db
+    summary = []
+    for service in config.Spark.Services:
+        if status_db[service] != 0:
+            summary.append(service + ": DOWN (" + status_db[service] + ")")
+        else:
+            summary.append(service + ": OK")
+    print(" | ".join(summary))
 
 def checkService(service_response, error_threshold, service_name, service_cachet_component, groupme_channel):
     global status_db
@@ -63,7 +73,7 @@ def checkService(service_response, error_threshold, service_name, service_cachet
             status_db[service] = 0
         else:
             # Service was up, and continues to be up.
-            print(service_name + " continues to be fine.")
+            # print(service_name + " continues to be fine.")
             status_db[service] = 0
 
 def notifyGroupMe(message, botID):

@@ -4,7 +4,6 @@ import config
 
 def initialize():
     global status_db
-    print(config.DB.FilePath)
     try:
         with open(config.DB.FilePath, 'r+') as file:
             status_db = json.load(file)

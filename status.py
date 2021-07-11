@@ -4,7 +4,7 @@ import db, cachet, check, config
 
 def main():
     global status_db
-    print(datetime.datetime.now().strftime("%D at %T"))
+    print("==> " + datetime.datetime.now().strftime("%D at %T"))
     checkService(check.plexStatus(), 5, "Plex", cachet.Components.Plex, config.GroupMe.SeventhProtocol)
     checkService(check.teamspeakStatus(), 2, "TeamSpeak", cachet.Components.Teamspeak, config.GroupMe.VGF)
     checkService(check.minecraftStatus(), 5, "Minecraft", cachet.Components.Minecraft, config.GroupMe.VGF)

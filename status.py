@@ -5,7 +5,7 @@ import db, cachet, check, config
 def main():
     global status_db
     print(datetime.datetime.now().strftime("%D at %T"))
-    checkService(check.plexStatus(), 2, "Plex", cachet.Components.Plex, config.GroupMe.SeventhProtocol)
+    checkService(check.plexStatus(), 5, "Plex", cachet.Components.Plex, config.GroupMe.SeventhProtocol)
     checkService(check.teamspeakStatus(), 2, "TeamSpeak", cachet.Components.Teamspeak, config.GroupMe.VGF)
     checkService(check.syncLoungeStatus(), 5, "SyncLounge", cachet.Components.SyncLounge, config.GroupMe.SeventhProtocol)
     checkService(check.requestStatus(), 10, "Requests", cachet.Components.Requests, config.GroupMe.SeventhProtocol)
@@ -48,14 +48,18 @@ def checkService(service_response, error_threshold, service_name, service_cachet
             # Service has not yet violated error threshold.
             print(service_name + " has not yet violated error threshold. Not yet alerting.")
     else:
-        if status_db[service] > 0 :
-            # Service was down, but now it's back up. Close out the notices and notify people it's back.
+        if status_db[service] >= error_threshold:
+            # Service was down past error threshold, but now it's back up. Close out the notices and notify people it's back.
             print(service_name + " has returned, closing out incident and notifying group.")
             status_db[service] = 0
             return_string = status_db[service_incident_message] + "\n\nHowever, as of %s, it appears %s is running nominally." % (datetime.datetime.now().strftime("%D at %T"), service_name)
             cachet.closeIncident(service_cachet_component, status_db[service_incident_code], return_string)
             return_string = "The " + service_name + " server is back up."
             notifyGroupMe(return_string, groupme_channel)
+        elif status_db[service] > 0:
+            # Service was down, but never violated error threshold. Resetting counter and continuing in silence.
+            print(service_name + " previously had issues, but no longer. Since it never violated threshold, continuing in silence.")
+            status_db[service] = 0
         else:
             # Service was up, and continues to be up.
             print(service_name + " continues to be fine.")

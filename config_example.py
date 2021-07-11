@@ -13,6 +13,10 @@ class GroupMe:
     Plex = "groupmebotchanel"
     SeventhProtocol = "idontactuallylikegroupmeallthatmuch"
 
+class Minecraft:
+    Host = "myminecraftserver.com"
+    Port = "25565"
+
 class SyncLounge:
     URL = "https://mysyncserver.com/health"
 

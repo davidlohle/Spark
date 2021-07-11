@@ -8,6 +8,7 @@ class Components:
     SyncLounge = 9
     Requests = 13
     FileUpload = 5
+    Minecraft = 12
 
 class ComponentStatus:
     Operational = 1

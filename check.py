@@ -71,6 +71,22 @@ def requestStatus():
         print(err)
         return False
 
+def minecraftStatus():
+    minecraft_host = config.Minecraft.Host
+    minecraft_port = config.Minecraft.Port
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try: 
+        result = s.connect_ex((minecraft_host, minecraft_port))
+        if result != 0:
+            s.close()
+            print("Non 0 ex_connect to Minecraft port.")
+            return False
+        s.close()
+        return True
+    except Exception as err:
+        print("Unknown issue connecting to Minecraft port. Err:")
+        print(err)
+        return False
 
 def fileUploadStatus():
     file_upload_api = config.FileUpload.Upload_API

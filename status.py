@@ -7,6 +7,7 @@ def main():
     print(datetime.datetime.now().strftime("%D at %T"))
     checkService(check.plexStatus(), 5, "Plex", cachet.Components.Plex, config.GroupMe.SeventhProtocol)
     checkService(check.teamspeakStatus(), 2, "TeamSpeak", cachet.Components.Teamspeak, config.GroupMe.VGF)
+    checkService(check.minecraftStatus(), 5, "Minecraft", cachet.Components.Minecraft, config.GroupMe.VGF)
     checkService(check.syncLoungeStatus(), 5, "SyncLounge", cachet.Components.SyncLounge, config.GroupMe.SeventhProtocol)
     checkService(check.requestStatus(), 10, "Requests", cachet.Components.Requests, config.GroupMe.SeventhProtocol)
     checkService(check.fileUploadStatus(), 3, "IPv7", cachet.Components.FileUpload, config.GroupMe.SeventhProtocol)

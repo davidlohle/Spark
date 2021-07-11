@@ -13,7 +13,7 @@ def initialize():
         print("Error loading status DB, starting with empty file.")
 
     # Create keys if they don't exist (poor-mans schema migration)
-    services = ["plex", "teamspeak", "synclounge", "requests", "ipv7"]
+    services = ["plex", "teamspeak", "synclounge", "requests", "ipv7", "minecraft"]
     for service in services:
         if service not in status_db:
             status_db[service] = 0

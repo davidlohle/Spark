@@ -19,5 +19,9 @@ def initialize():
 
 def commit():
     global status_db
-    with open(config.DB.FilePath, 'w+') as file:
-        json.dump(status_db, file, indent=4, sort_keys=True)
+    try:
+        with open(config.DB.FilePath, 'w+') as file:
+            json.dump(status_db, file, indent=4, sort_keys=True)
+    except Exception as err:
+        print("Failed trying to update DB, error: " + str(err))
+        print(status_db)

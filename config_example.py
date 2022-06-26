@@ -2,7 +2,7 @@ import os
 
 class Spark:
     Services = ["plex", "teamspeak", "synclounge", "requests", "ipv7", "minecraft"]
-
+    LockFilePath = "/home/david/spark/"
 class Cachet:
     URL = "https://mycachetserver.com"
     Token = "mytoken"

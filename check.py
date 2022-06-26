@@ -15,7 +15,7 @@ def sanityStatus():
         except Exception as err:
             print("Looks like I'm having network issues!")
             print(err)
-        return False
+            return False
 
 def plexStatus():
     health_url = config.Plex.URL + "/media/providers"

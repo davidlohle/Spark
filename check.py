@@ -2,6 +2,21 @@ import requests, socket, json
 
 import config
 
+def sanityStatus():
+    try:
+        requests.request("GET", "https://google.com", verify=False, timeout=10)
+        return True
+    except Exception as err:
+        print("Issue while reaching Google, checking if Cloudflare is OK or just Google is down (lol) Err:")
+        print(err)
+        try:
+            requests.request("GET", "https://www.cloudflarestatus.com", verify=False, timeout=10)
+            return True
+        except Exception as err:
+            print("Looks like I'm having network issues!")
+            print(err)
+        return False
+
 def plexStatus():
     health_url = config.Plex.URL + "/media/providers"
     headers = {

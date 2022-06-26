@@ -1,3 +1,4 @@
 __pycache__
 statusDB.json
 config.py
+.spark_is_running

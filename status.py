@@ -1,6 +1,6 @@
 import requests, urllib3, datetime
 
-import db, cachet, check, config
+import db, cachet, check, config, lock
 
 def main():
     global status_db
@@ -48,7 +48,7 @@ def checkService(service_response, error_threshold, service_name, service_cachet
                 "component_id": service_cachet_component, 
                 "component_status": cachet.ComponentStatus.MajorOutage
             } 
-
+    
             incident_code = cachet.createIncident(service_down_payload)
             status_db[service_incident_code] = incident_code
             
@@ -91,6 +91,7 @@ def notifyGroupMe(message, botID):
 
 
 if __name__ == "__main__":
+    lock.getLock()
     global status_db
     urllib3.disable_warnings()
     db.initialize()
@@ -99,5 +100,10 @@ if __name__ == "__main__":
         main()
     except Exception as err:
         print("Error while running Spark: " + str(err))
+        # Fatal error in Spark, but should still save DB to prevent duplicate errors.
+        db.status_db = status_db
+        db.commit()
+        lock.releaseLock()
     db.status_db = status_db
     db.commit()
+    lock.releaseLock()

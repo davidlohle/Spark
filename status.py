@@ -94,7 +94,7 @@ def generatePrometheusExport():
     global status_db
     with open(config.Spark.PrometheusExportFile, "w") as exporter:
         for service in config.Spark.Services:
-            exporter.write(f"TYPE {service} gauge\n")
+            exporter.write(f"# TYPE {service} counter\n")
             exporter.write(f"{service} {status_db[service]}\n")
 
 if __name__ == "__main__":

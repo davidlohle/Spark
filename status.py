@@ -13,6 +13,7 @@ def main():
     checkService(check.syncLoungeStatus(), 5, "SyncLounge", cachet.Components.SyncLounge, config.GroupMe.SeventhProtocol)
     checkService(check.requestStatus(), 10, "Requests", cachet.Components.Requests, config.GroupMe.SeventhProtocol)
     checkService(check.fileUploadStatus(), 3, "IPv7", cachet.Components.FileUpload, config.GroupMe.SeventhProtocol)
+    generatePrometheusExport()
     summarizeStatus()
 
 
@@ -89,6 +90,12 @@ def notifyGroupMe(message, botID):
     }
     requests.request("POST", "https://api.groupme.com/v3/bots/post", headers=headers, json=payload)
 
+def generatePrometheusExport():
+    global status_db
+    with open(config.Spark.PrometheusExportFile, "w") as exporter:
+        for service in config.Spark.Services:
+            exporter.write(f"TYPE {service} gauge\n")
+            exporter.write(f"{service} {status_db[service]}\n")
 
 if __name__ == "__main__":
     lock.getLock()

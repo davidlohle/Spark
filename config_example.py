@@ -3,6 +3,7 @@ import os
 class Spark:
     Services = ["plex", "teamspeak", "synclounge", "requests", "ipv7", "minecraft"]
     LockFilePath = "/home/david/spark/"
+    PrometheusExportFile = "/home/david/monitoring/metrics"
 class Cachet:
     URL = "https://mycachetserver.com"
     Token = "mytoken"

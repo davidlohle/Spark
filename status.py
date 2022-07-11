@@ -93,9 +93,9 @@ def notifyGroupMe(message, botID):
 def generatePrometheusExport():
     global status_db
     with open(config.Spark.PrometheusExportFile, "w") as exporter:
+        exporter.write(f"# TYPE spark_status counter\n")
         for service in config.Spark.Services:
-            exporter.write(f"# TYPE {service} counter\n")
-            exporter.write(f"{service} {status_db[service]}\n")
+            exporter.write("spark_status{service=\"" + str(service) + "\"} " + str(status_db[service]) + "\n")
 
 if __name__ == "__main__":
     lock.getLock()

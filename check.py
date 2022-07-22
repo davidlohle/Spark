@@ -39,6 +39,7 @@ def teamspeakStatus():
     teamspeak_host = config.Teamspeak.Host
     teamspeak_port = 10011
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(10)
     try: 
         result = s.connect_ex((teamspeak_host, teamspeak_port))
         if result != 0:

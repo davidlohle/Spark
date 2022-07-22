@@ -11,7 +11,7 @@ def main():
     checkService(check.teamspeakStatus(), 2, "TeamSpeak", cachet.Components.Teamspeak, config.GroupMe.VGF)
     checkService(check.minecraftStatus(), 5, "Minecraft", cachet.Components.Minecraft, config.GroupMe.VGF)
     checkService(check.syncLoungeStatus(), 5, "SyncLounge", cachet.Components.SyncLounge, config.GroupMe.SeventhProtocol)
-    checkService(check.requestStatus(), 10, "Requests", cachet.Components.Requests, config.GroupMe.SeventhProtocol)
+    checkService(check.requestStatus(), 10, "Requests", cachet.Components.Requests, config.GroupMe.Plex)
     checkService(check.fileUploadStatus(), 3, "IPv7", cachet.Components.FileUpload, config.GroupMe.SeventhProtocol)
     generatePrometheusExport()
     summarizeStatus()

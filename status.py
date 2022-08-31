@@ -7,6 +7,7 @@ def main():
     print("==> " + datetime.datetime.now().strftime("%D at %T"))
     if not check.sanityStatus():
         print("Error while running sanity check, halting.")
+        raise Exception("No network access.")
     checkService(check.plexStatus(), 5, "Plex", cachet.Components.Plex, config.GroupMe.Plex)
     checkService(check.teamspeakStatus(), 2, "TeamSpeak", cachet.Components.Teamspeak, config.GroupMe.VGF)
     checkService(check.minecraftStatus(), 5, "Minecraft", cachet.Components.Minecraft, config.GroupMe.VGF)

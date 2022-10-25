@@ -1,6 +1,6 @@
 import requests, urllib3, datetime
 
-import db, cachet, check, config, lock
+import db, cachet, check, config, lock, discord
 
 def main():
     global status_db
@@ -8,12 +8,12 @@ def main():
     if not check.sanityStatus():
         print("Error while running sanity check, halting.")
         raise Exception("No network access.")
-    checkService(check.plexStatus(), 5, "Plex", cachet.Components.Plex, config.GroupMe.Plex)
-    checkService(check.teamspeakStatus(), 2, "TeamSpeak", cachet.Components.Teamspeak, config.GroupMe.VGF)
-    checkService(check.minecraftStatus(), 5, "Minecraft", cachet.Components.Minecraft, config.GroupMe.VGF)
-    checkService(check.syncLoungeStatus(), 5, "SyncLounge", cachet.Components.SyncLounge, config.GroupMe.SeventhProtocol)
-    checkService(check.requestStatus(), 10, "Requests", cachet.Components.Requests, config.GroupMe.Plex)
-    checkService(check.fileUploadStatus(), 3, "IPv7", cachet.Components.FileUpload, config.GroupMe.SeventhProtocol)
+    checkService(check.plexStatus(), config.Plex)
+    checkService(check.teamspeakStatus(), config.Teamspeak)
+    checkService(check.minecraftStatus(), config.Minecraft)
+    checkService(check.syncLoungeStatus(), config.SyncLounge)
+    checkService(check.requestStatus(), config.Requests)
+    checkService(check.fileUploadStatus(), config.FileUpload)
     generatePrometheusExport()
     summarizeStatus()
 
@@ -28,34 +28,20 @@ def summarizeStatus():
             summary.append(service + ": OK")
     print(" | ".join(summary))
 
-def checkService(service_response, error_threshold, service_name, service_cachet_component, groupme_channel):
+
+def checkService(service_response, service_config):
     global status_db
-    service = service_name.lower()
-    service_incident_message = service + "_incident_message"
-    service_incident_code = service + "_incident_code"
-    if not service_response:
+    service = service_config.Name.lower()
+    service_name = service_config.Name
+    error_threshold = service_config.Retries
+    if not service_response[0]:
         # Component is down, increment error count
         status_db[service] += 1
-        print("Error with contacting " + service_name + ", incrementing error counter.")
+        print("Error with contacting " + service + ", incrementing error counter.")
         if status_db[service] == error_threshold:
-            # Component is down past threshold, create tickets and alert.
-            print(service_name + " has hit error threshold, opening a ticket and notifying groups.")
-            status_db[service_incident_message] = "On %s EST, there was a missed heartbeat from %s. %s is most likely down at the moment." % (datetime.datetime.now().strftime("%D at %T"), service_name, service_name)
-            service_down_payload = {
-                "visible": 1,
-                "notify": False,
-                "status": cachet.IncidentStatus.Investigating,
-                "name": "%s Unavailability" % service_name, 
-                "message": status_db[service_incident_message], 
-                "component_id": service_cachet_component, 
-                "component_status": cachet.ComponentStatus.MajorOutage
-            } 
-    
-            incident_code = cachet.createIncident(service_down_payload)
-            status_db[service_incident_code] = incident_code
-            
-            error_string = "The " + service_name + " server is down. Status: " + config.Cachet.URL + "/incidents/" + str(incident_code)
-            notifyGroupMe(error_string, groupme_channel)
+            # Component is down past threshold, alert.
+            print(service_name + " has hit error threshold, notifying groups.")
+            discord.generateDownDiscordMessage(service_config, service_response[1])
         elif status_db[service] > error_threshold:
             # Service has already violated error threshold and tickets opened.
             print(service_name + " has already violated error threshold and alerted. Continuing in silence.")
@@ -67,10 +53,7 @@ def checkService(service_response, error_threshold, service_name, service_cachet
             # Service was down past error threshold, but now it's back up. Close out the notices and notify people it's back.
             print(service_name + " has returned, closing out incident and notifying group.")
             status_db[service] = 0
-            return_string = status_db[service_incident_message] + "\n\nHowever, as of %s, it appears %s is running nominally." % (datetime.datetime.now().strftime("%D at %T"), service_name)
-            cachet.closeIncident(service_cachet_component, status_db[service_incident_code], return_string)
-            return_string = "The " + service_name + " server is back up."
-            notifyGroupMe(return_string, groupme_channel)
+            discord.generateUpDiscordMessage(service_config)
         elif status_db[service] > 0:
             # Service was down, but never violated error threshold. Resetting counter and continuing in silence.
             print(service_name + " previously had issues, but no longer. Since it never violated threshold, continuing in silence.")
@@ -80,16 +63,6 @@ def checkService(service_response, error_threshold, service_name, service_cachet
             # print(service_name + " continues to be fine.")
             status_db[service] = 0
 
-def notifyGroupMe(message, botID):
-    payload = {
-        "bot_id": botID,
-        "text": message,
-    }
-    headers = {
-    "Accept": "application/json",
-    "Content-Type": "application/json",   
-    }
-    requests.request("POST", "https://api.groupme.com/v3/bots/post", headers=headers, json=payload)
 
 def generatePrometheusExport():
     global status_db

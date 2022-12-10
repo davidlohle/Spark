@@ -1,4 +1,4 @@
-import requests
+import requests, config
 
 def generateDownDiscordMessage(service, error):
     payload = {
@@ -33,6 +33,63 @@ def generateUpDiscordMessage(service):
             "attachments": []
         }
     sendDiscordMessage(payload, service.DiscordHook)
+
+def generatePowerLossDiscordMessage(event):
+    payload = {
+        "content": None,
+        "embeds": [
+            {
+            "title": f"{event['title']}",
+            "description": f"{event['message']}",
+            "color": 16205125,
+            "fields": [
+                {
+                "name": "Estimated Runtime",
+                "value": f"{event['estimated_runtime']} minutes",
+                "inline": True
+                },
+                {
+                "name": "Battery Percentage",
+                "value": f"{event['battery_percentage']}%",
+                "inline": True
+                }
+            ],
+            "thumbnail": {
+                "url": "https://f.ipv7.sh/ovyqto.png"
+            }
+            }
+        ],
+        "username": "Spark",
+        "attachments": []
+    }
+    sendDiscordMessage(payload, config.Spark.GeneralDiscordHook)
+
+def generatePowerReturnDiscordMessage(event):
+    payload = {
+        "content": None,
+        "embeds": [
+            {
+            "title": f"{event['title']}",
+            "description": f"{event['message']}",
+            "color": 3980080,
+            "thumbnail": {
+                "url": "https://f.ipv7.sh/hkdilj.png"
+            }
+            }
+        ],
+        "username": "Spark",
+        "attachments": []
+    }
+    sendDiscordMessage(payload, config.Spark.GeneralDiscordHook)
+
+def generateInternalErrorDiscordMessage(message):
+    payload = {
+        "content": f"{message}",
+        "embeds": None,
+        "username": "Spark",
+        "attachments": []
+    }
+    sendDiscordMessage(payload, config.Spark.InternalWebhook)
 
 def sendDiscordMessage(message, webhook_url):
     headers = {

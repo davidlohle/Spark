@@ -1,6 +1,6 @@
-import requests, urllib3, datetime
+import urllib3, datetime, time
 
-import db, cachet, check, config, lock, discord
+import db, check, config, lock, discord
 
 def main():
     global status_db

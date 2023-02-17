@@ -4,3 +4,4 @@ config.py
 .spark_is_running
 sparkssh
 sparkssh.pub
+metrics

@@ -9,7 +9,6 @@ def main():
         print("Error while running sanity check, halting.")
         raise Exception("No network access.")
     checkService(check.plexStatus(), config.Plex)
-    checkService(check.teamspeakStatus(), config.Teamspeak)
     checkService(check.minecraftStatus(), config.Minecraft)
     checkService(check.syncLoungeStatus(), config.SyncLounge)
     checkService(check.requestStatus(), config.Requests)

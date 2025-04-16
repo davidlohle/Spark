@@ -9,8 +9,6 @@ def getLock():
             lockfile.write(str(int(time.time())))
     except:
         print("Error trying to grab lockfile, is another Spark instance running?")
-        # notify me to get feedback on whether or not lockfile contention is an issue
-        status.notifyGroupMe("Error grabbing lockfile", config.GroupMe.SeventhProtocol)
         raise
 
 def releaseLock():
